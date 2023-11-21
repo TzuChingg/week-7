@@ -43,7 +43,8 @@ axios
     });
 
     const ticketCardRegion = document.querySelectorAll(".ticketCard-region");
-    updateRegion();
+    // 繪圖
+    chartDonut();
     // 更新搜尋提示字
     const searchResult = document.querySelector("#searchResult-text");
     searchResult.innerHTML = `全部共 ${ticketCardRegion.length} 筆資料`;
@@ -76,7 +77,7 @@ selector.addEventListener("click", () => {
   updateRegion();
   // 搜尋結果
   const searchResult = document.querySelector("#searchResult-text");
-//   searchResult.innerHTML = `全部共 ${ticketCardRegion.length} 筆資料`;
+  //   searchResult.innerHTML = `全部共 ${ticketCardRegion.length} 筆資料`;
 
   regionSearch.addEventListener("change", (element) => {
     if (!RegionList.includes(element.target.value)) {
@@ -121,7 +122,7 @@ const addTicketForm = document.querySelector(".addTicket-form");
 addTicketForm.addEventListener("change", (el) => {
   let key = el.target.id;
   addTicketInfo[ticketToTicketCard[key]] = el.target.value;
-  console.log(addTicketInfo);
+  // console.log(addTicketInfo);
 });
 
 // 提交表單
@@ -171,6 +172,22 @@ submit.addEventListener("click", () => {
     addHTML.innerHTML = example;
     document.querySelector(".ticketCard-area").appendChild(addHTML);
     document.getElementById("form1").reset(); //重置
+
+    // 篩選結果
+    const selector = document.querySelector(".regionSearch");
+    // 重新抓取位置
+    const ticketCard = document.querySelectorAll(".ticketCard");
+    const ticketCardRegion = document.querySelectorAll(".ticketCard-region");
+
+    chartDonut();
+    // 搜尋結果
+    const searchResult = document.querySelector("#searchResult-text");
+    selector.value = "";
+    ticketCardRegion.forEach((el, index) => {
+      ticketCard[index].removeAttribute("style");
+      // 搜尋結果隱藏
+      searchResult.innerHTML = `全部共 ${ticketCardRegion.length} 筆資料`;
+    });
   }
 });
 
@@ -209,10 +226,42 @@ form.addEventListener(
       return;
     } else {
       const trackElement = document.querySelector(`#${e.target.id}`);
-      console.log(e.target.id);
+      // console.log(e.target.id);
       blur(trackElement);
       focus(trackElement);
     }
   },
   true
 );
+
+function chartDonut() {
+  // 圖表
+  // 抓取網頁元素
+  const ticketCardRegion = document.querySelectorAll(".ticketCard-region");
+  let chartData = {};
+  ticketCardRegion.forEach((item) => {
+    if (typeof chartData[item.outerText] == "undefined") {
+      chartData[item.outerText] = 1;
+    } else {
+      chartData[item.outerText] += 1;
+    }
+  });
+  // 整理成c3格式
+  let newChartData = [];
+  updateRegion();
+  RegionList.filter((el) => el !== "").forEach((item) => {
+    newChartData.push([item, chartData[item]]);
+  });
+  console.log(newChartData);
+  // 繪圖
+  const chart = c3.generate({
+    bindto: "#chart",
+    data: {
+      columns: newChartData,
+      type: "donut",
+    },
+    donut: {
+      title: "地區",
+    },
+  });
+}

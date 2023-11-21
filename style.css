@@ -189,7 +189,13 @@
   }
   
   .search-area p {
+    width: 250px;
     color: #818A91;
+  }
+  .search-area #chart{
+    width: 400px; 
+    height: 250px;
+    
   }
   
   @media (max-width: 768px) {
